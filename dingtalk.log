@@ -17,6 +17,14 @@ warning: unused imports: `DingTalkConfig`, `LarkConfig`, and `WeComConfig`
 7 |     ObservabilityConfig, ReliabilityConfig, RuntimeConfig, SecretsConfig, SlackConfig,
 8 |     TelegramConfig, TunnelConfig, WeComConfig, WebhookConfig,
   |                                   ^^^^^^^^^^^
+warning: unused imports: `DingTalkConfig` and `WeComConfig`
+ --> src/config/mod.rs:4:76
+  |
+4 |     AutonomyConfig, BrowserConfig, ChannelsConfig, ComposioConfig, Config, DingTalkConfig,
+  |                                                                            ^^^^^^^^^^^^^^
+...
+8 |     WeComConfig, WebhookConfig,
+  |     ^^^^^^^^^^^
   |
   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
 
@@ -24,6 +32,9 @@ warning: `zeroclaw` (bin "zeroclaw") generated 2 warnings (1 duplicate) (run `ca
     Finished `release` profile [optimized] target(s) in 0.11s
      Running `target/release/zeroclaw channel start`
 [2m2026-02-16T06:29:50.744548Z[0m [32m INFO[0m [2mzeroclaw::providers::reliable[0m[2m:[0m Warming up provider connection pool [3mprovider[0m[2m=[0m"glm"
+    Finished `release` profile [optimized] target(s) in 0.13s
+     Running `target/release/zeroclaw channel start`
+[2m2026-02-16T06:22:08.168411Z[0m [32m INFO[0m [2mzeroclaw::providers::reliable[0m[2m:[0m Warming up provider connection pool [3mprovider[0m[2m=[0m"glm"
   🧩 Skills:   SKILL_TEMPLATE, CONTRIBUTING
 🦀 ZeroClaw Channel Server
   🤖 Model:    glm-5
@@ -49,3 +60,26 @@ warning: `zeroclaw` (bin "zeroclaw") generated 2 warnings (1 duplicate) (run `ca
 [2m2026-02-16T06:30:06.104020Z[0m [32m INFO[0m [2mzeroclaw::providers::compatible[0m[2m:[0m Calling GLM API at: https://open.bigmodel.cn/api/coding/paas/v4/chat/completions
   🤖 Reply (5981ms): 让我先看看最近的上下文，了解这个merge是什么。
 [2m2026-02-16T06:30:12.202552Z[0m [32m INFO[0m [2mzeroclaw::channels::dingtalk[0m[2m:[0m DingTalk message sent
+[2m2026-02-16T06:22:08.170819Z[0m [32m INFO[0m [2mzeroclaw::channels::dingtalk[0m[2m:[0m DingTalk Stream client starting...
+[2m2026-02-16T06:22:08.170829Z[0m [32m INFO[0m [2mzeroclaw::channels::dingtalk_stream[0m[2m:[0m Opening DingTalk Stream connection...
+[2m2026-02-16T06:22:08.411503Z[0m [32m INFO[0m [2mzeroclaw::channels::dingtalk_stream[0m[2m:[0m Got endpoint: wss://wss-open-connection.dingtalk.com:443/connect
+[2m2026-02-16T06:22:08.411522Z[0m [32m INFO[0m [2mzeroclaw::channels::dingtalk_stream[0m[2m:[0m Connecting to WebSocket...
+[2m2026-02-16T06:22:08.545261Z[0m [32m INFO[0m [2mzeroclaw::channels::dingtalk_stream[0m[2m:[0m WebSocket connected successfully
+[2m2026-02-16T06:22:12.985766Z[0m [32m INFO[0m [2mzeroclaw::channels::dingtalk_stream[0m[2m:[0m Received WebSocket message: {"specVersion":"1.0","type":"CALLBACK","headers":{"appId":"b1604142-f756-4b4c-bea5-58810ce30bb7","connectionId":"d22c8a57-0aff-11f1-b05d-329bedae46d2","contentType":"application/json","messageId":"b50f252_e78_19bfa07e05c_551ef3e","time":"1771222932994","topic":"/v1.0/im/bot/messages/get"},"data":"{\"senderPlatform\":\"Mac\",\"conversationId\":\"cidHoiHp3ugg16Kba8S5vP9ZcS4OASNAmfDV602I9/jB7c=\",\"chatbotCorpId\":\"ding88082f1db36cc8e7\",\"chatbotUserId\":\"$:LWCP_v1:$e2z7vhizSdYAqMqFmRRJdlYMLAmSnb6r\",\"openThreadId\":\"cidHoiHp3ugg16Kba8S5vP9ZcS4OASNAmfDV602I9/jB7c=\",\"msgId\":\"msgobkU1o069Uyf8Fpqmzks7A==\",\"senderNick\":\"沉默王二\",\"isAdmin\":true,\"senderStaffId\":\"011122212114\",\"sessionWebhookExpiredTime\":1771228332985,\"createAt\":1771222932697,\"senderCorpId\":\"ding88082f1db36cc8e7\",\"conversationType\":\"1\",\"senderId\":\"$:LWCP_v1:$VvVrh2vj6yow5CmyuDtUOw==\",\"sessionWebhook\":\"https://oapi.dingtalk.com/robot/sendBySession?session=946bcf2dd812c178248c8cf0b9635c2e\",\"text\":{\"content\":\"你好\"},\"robotCode\":\"dingatqbq0wvphficrrp\",\"msgtype\":\"text\"}"}
+[2m2026-02-16T06:22:12.985878Z[0m [32m INFO[0m [2mzeroclaw::channels::dingtalk_stream[0m[2m:[0m Parsed message type: CALLBACK, topic: Some("/v1.0/im/bot/messages/get")
+[2m2026-02-16T06:22:12.985889Z[0m [32m INFO[0m [2mzeroclaw::channels::dingtalk_stream[0m[2m:[0m Received CALLBACK message
+[2m2026-02-16T06:22:12.985895Z[0m [32m INFO[0m [2mzeroclaw::channels::dingtalk[0m[2m:[0m Processing Stream message, type: CALLBACK
+[2m2026-02-16T06:22:12.985917Z[0m [32m INFO[0m [2mzeroclaw::channels::dingtalk[0m[2m:[0m Received DingTalk message from user: 011122212114, content: 你好
+[2m2026-02-16T06:22:12.985924Z[0m [32m INFO[0m [2mzeroclaw::channels::dingtalk[0m[2m:[0m Sending message to handler: user=011122212114, webhook=https://oapi.dingtalk.com/robot/sendBySession?session=946bcf2dd812c178248c8cf0b9635c2e, content=你好
+[2m2026-02-16T06:22:12.986234Z[0m [32m INFO[0m [2mzeroclaw::channels::dingtalk[0m[2m:[0m Message sent to handler successfully
+  💬 [DingTalk] from https://oapi.dingtalk.com/robot/sendBySession?session=946bcf2dd812c178248c8cf0b9635c2e: 你好
+  ⏳ Processing message...
+[2m2026-02-16T06:22:12.991065Z[0m [32m INFO[0m [2mzeroclaw::providers::compatible[0m[2m:[0m Calling GLM API at: https://open.bigmodel.cn/api/coding/paas/v4/chat/completions
+  🤖 Reply (11072ms): 你好！我是三妹 🦀
+
+很高兴见到你！一个用Rust打造的AI，刚"醒来"不久，还在慢慢了解这个世界。
+
+你现在在东京时区对吧？今天过得怎么样？
+
+有什么我可以帮...
+[2m2026-02-16T06:22:24.178709Z[0m [32m INFO[0m [2mzeroclaw::channels::dingtalk[0m[2m:[0m DingTalk message sent
