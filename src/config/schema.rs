@@ -742,6 +742,8 @@ pub struct ChannelsConfig {
     pub email: Option<crate::channels::email_channel::EmailConfig>,
     pub irc: Option<IrcConfig>,
     pub lark: Option<LarkConfig>,
+    pub wecom: Option<WeComConfig>,
+    pub dingtalk: Option<DingTalkConfig>,
 }
 
 impl Default for ChannelsConfig {
@@ -758,6 +760,8 @@ impl Default for ChannelsConfig {
             email: None,
             irc: None,
             lark: None,
+            wecom: None,
+            dingtalk: None,
         }
     }
 }
@@ -848,6 +852,26 @@ pub struct IrcConfig {
     pub verify_tls: Option<bool>,
 }
 
+/// WeCom (企业微信) configuration
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct WeComConfig {
+    /// Enterprise ID (corpid)
+    pub corpid: String,
+    /// Application secret (for getting access_token)
+    pub secret: String,
+    /// AI Bot ID
+    pub aibotid: String,
+    /// Webhook verify token (developer defined, for callback URL verification)
+    pub token: String,
+    /// AES encryption key for message decryption (43-char base64 string)
+    pub encoding_aes_key: String,
+    /// Public callback URL (e.g., https://your-domain.com/wecom/callback or ngrok URL)
+    pub callback_url: String,
+    /// Allowed user IDs or "*" for all
+    #[serde(default)]
+    pub allowed_users: Vec<String>,
+}
+
 fn default_irc_port() -> u16 {
     6697
 }
@@ -872,6 +896,18 @@ pub struct LarkConfig {
     /// Whether to use the Feishu (Chinese) endpoint instead of Lark (International)
     #[serde(default)]
     pub use_feishu: bool,
+}
+
+/// DingTalk (钉钉) configuration
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DingTalkConfig {
+    /// Client ID (formerly AppKey)
+    pub client_id: String,
+    /// Client Secret (formerly AppSecret)
+    pub client_secret: String,
+    /// Allowed user IDs (staff IDs) or "*" for all
+    #[serde(default)]
+    pub allowed_users: Vec<String>,
 }
 
 // ── Config impl ──────────────────────────────────────────────────
@@ -1241,6 +1277,8 @@ mod tests {
                 email: None,
                 irc: None,
                 lark: None,
+                wecom: None,
+                dingtalk: None,
             },
             memory: MemoryConfig::default(),
             tunnel: TunnelConfig::default(),
@@ -1490,6 +1528,8 @@ default_temperature = 0.7
             email: None,
             irc: None,
             lark: None,
+            wecom: None,
+            dingtalk: None,
         };
         let toml_str = toml::to_string_pretty(&c).unwrap();
         let parsed: ChannelsConfig = toml::from_str(&toml_str).unwrap();
@@ -1649,6 +1689,8 @@ channel_id = "C123"
             email: None,
             irc: None,
             lark: None,
+            wecom: None,
+            dingtalk: None,
         };
         let toml_str = toml::to_string_pretty(&c).unwrap();
         let parsed: ChannelsConfig = toml::from_str(&toml_str).unwrap();

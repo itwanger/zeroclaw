@@ -52,7 +52,9 @@ impl OpenAiCompatibleProvider {
         if self.base_url.contains("chat/completions") {
             self.base_url.clone()
         } else {
-            format!("{}/chat/completions", self.base_url)
+            let url = format!("{}/chat/completions", self.base_url);
+            tracing::debug!("GLM API URL: {}", url);
+            url
         }
     }
 
@@ -271,6 +273,8 @@ impl Provider for OpenAiCompatibleProvider {
         };
 
         let url = self.chat_completions_url();
+        
+        tracing::info!("Calling {} API at: {}", self.name, url);
 
         let response = self
             .apply_auth_header(self.client.post(&url).json(&request), api_key)

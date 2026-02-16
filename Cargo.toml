@@ -49,6 +49,14 @@ uuid = { version = "1.11", default-features = false, features = ["v4", "std"] }
 # Authenticated encryption (AEAD) for secret store
 chacha20poly1305 = "0.10"
 
+# AES-CBC for WeCom message encryption
+aes = "0.8"
+cbc = "0.1"
+rand = "0.8"
+
+# DingTalk Stream mode
+dingtalk-stream-sdk-rust = "0.1.0"
+
 # HMAC for webhook signature verification
 hmac = "0.12"
 sha2 = "0.10"

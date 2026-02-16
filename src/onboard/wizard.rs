@@ -1127,6 +1127,8 @@ fn setup_channels() -> Result<ChannelsConfig> {
         email: None,
         irc: None,
         lark: None,
+        wecom: None,
+        dingtalk: None,
     };
 
     loop {

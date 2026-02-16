@@ -1,4 +1,7 @@
 pub mod cli;
+pub mod dingtalk;
+pub mod dingtalk_api;
+pub mod dingtalk_stream;
 pub mod discord;
 pub mod email_channel;
 pub mod imessage;
@@ -7,9 +10,12 @@ pub mod matrix;
 pub mod slack;
 pub mod telegram;
 pub mod traits;
+pub mod wecom;
+pub mod wecom_crypto;
 pub mod whatsapp;
 
 pub use cli::CliChannel;
+pub use dingtalk::DingTalkChannel;
 pub use discord::DiscordChannel;
 pub use email_channel::EmailChannel;
 pub use imessage::IMessageChannel;
@@ -18,6 +24,7 @@ pub use matrix::MatrixChannel;
 pub use slack::SlackChannel;
 pub use telegram::TelegramChannel;
 pub use traits::Channel;
+pub use wecom::WeComChannel;
 pub use whatsapp::WhatsAppChannel;
 
 use crate::config::Config;
@@ -322,6 +329,8 @@ pub fn handle_command(command: crate::ChannelCommands, config: &Config) -> Resul
                 ("iMessage", config.channels_config.imessage.is_some()),
                 ("Matrix", config.channels_config.matrix.is_some()),
                 ("WhatsApp", config.channels_config.whatsapp.is_some()),
+                ("WeCom", config.channels_config.wecom.is_some()),
+                ("DingTalk", config.channels_config.dingtalk.is_some()),
                 ("Email", config.channels_config.email.is_some()),
                 ("IRC", config.channels_config.irc.is_some()),
             ] {
@@ -450,6 +459,30 @@ pub async fn doctor_channels(config: Config) -> Result<()> {
                 irc.verify_tls.unwrap_or(true),
             )),
         ));
+    }
+
+    if let Some(ref wecom) = config.channels_config.wecom {
+        match WeComChannel::new(
+            wecom.corpid.clone(),
+            wecom.secret.clone(),
+            wecom.aibotid.clone(),
+            wecom.token.clone(),
+            wecom.encoding_aes_key.clone(),
+            wecom.allowed_users.clone(),
+        ) {
+            Ok(ch) => channels.push(("WeCom", Arc::new(ch))),
+            Err(e) => {
+                eprintln!("Warning: Failed to initialize WeCom channel: {e}");
+            }
+        }
+    }
+
+    if let Some(ref dt) = config.channels_config.dingtalk {
+        channels.push(("DingTalk", Arc::new(DingTalkChannel::new(
+            dt.client_id.clone(),
+            dt.client_secret.clone(),
+            dt.allowed_users.clone(),
+        ))));
     }
 
     if channels.is_empty() {
@@ -641,6 +674,14 @@ pub async fn start_channels(config: Config) -> Result<()> {
             irc.nickserv_password.clone(),
             irc.sasl_password.clone(),
             irc.verify_tls.unwrap_or(true),
+        )));
+    }
+
+    if let Some(ref dt) = config.channels_config.dingtalk {
+        channels.push(Arc::new(DingTalkChannel::new(
+            dt.client_id.clone(),
+            dt.client_secret.clone(),
+            dt.allowed_users.clone(),
         )));
     }
 
