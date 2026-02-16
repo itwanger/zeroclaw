@@ -1530,6 +1530,7 @@ default_temperature = 0.7
             lark: None,
             wecom: None,
             dingtalk: None,
+            wecom: None,
         };
         let toml_str = toml::to_string_pretty(&c).unwrap();
         let parsed: ChannelsConfig = toml::from_str(&toml_str).unwrap();
@@ -1689,8 +1690,8 @@ channel_id = "C123"
             email: None,
             irc: None,
             lark: None,
-            wecom: None,
             dingtalk: None,
+            wecom: None,
         };
         let toml_str = toml::to_string_pretty(&c).unwrap();
         let parsed: ChannelsConfig = toml::from_str(&toml_str).unwrap();
