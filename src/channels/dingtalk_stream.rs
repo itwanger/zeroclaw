@@ -58,8 +58,11 @@ impl StreamClient {
                         }
                     };
 
-                    tracing::info!("Parsed message type: {}, topic: {:?}", 
-                        stream_msg.msg_type, stream_msg.headers.topic);
+                    tracing::info!(
+                        "Parsed message type: {}, topic: {:?}",
+                        stream_msg.msg_type,
+                        stream_msg.headers.topic
+                    );
 
                     // Handle different message types
                     match stream_msg.msg_type.as_str() {
@@ -78,11 +81,15 @@ impl StreamClient {
                                         "data": stream_msg.data  // Return original data with opaque
                                     });
                                     tracing::debug!("Sending ping response: {}", response);
-                                    if let Err(e) = write.send(Message::Text(response.to_string())).await {
+                                    if let Err(e) =
+                                        write.send(Message::Text(response.to_string())).await
+                                    {
                                         tracing::error!("Failed to send ping response: {e}");
                                     }
                                 } else if topic == "disconnect" {
-                                    tracing::info!("Received disconnect message, closing connection");
+                                    tracing::info!(
+                                        "Received disconnect message, closing connection"
+                                    );
                                     break;
                                 }
                             }

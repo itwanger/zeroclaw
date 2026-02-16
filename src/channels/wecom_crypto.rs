@@ -10,7 +10,7 @@ pub struct WeComCrypto {
 
 impl WeComCrypto {
     /// Create a new crypto instance
-    /// 
+    ///
     /// `encoding_aes_key`: 43-char base64 string from WeCom admin console
     /// `corpid`: Enterprise ID
     pub fn new(encoding_aes_key: &str, corpid: &str) -> Result<Self> {
@@ -23,7 +23,10 @@ impl WeComCrypto {
 
         let aes_key = BASE64.decode(padded_key.as_bytes())?;
         if aes_key.len() != 32 {
-            bail!("Invalid encoding_aes_key: must decode to 32 bytes (AES-256), got {} bytes", aes_key.len());
+            bail!(
+                "Invalid encoding_aes_key: must decode to 32 bytes (AES-256), got {} bytes",
+                aes_key.len()
+            );
         }
 
         Ok(Self {
@@ -33,7 +36,7 @@ impl WeComCrypto {
     }
 
     /// Decrypt encrypted message from WeCom callback
-    /// 
+    ///
     /// Returns decrypted plaintext
     pub fn decrypt(&self, encrypted: &str) -> Result<String> {
         use aes::cipher::{block_padding::Pkcs7, BlockDecryptMut, KeyIvInit};
@@ -89,7 +92,7 @@ impl WeComCrypto {
     }
 
     /// Encrypt message for WeCom reply
-    /// 
+    ///
     /// Returns base64-encoded encrypted message
     pub fn encrypt(&self, plaintext: &str) -> Result<String> {
         use aes::cipher::{block_padding::Pkcs7, BlockEncryptMut, KeyIvInit};
@@ -101,7 +104,7 @@ impl WeComCrypto {
 
         // Build plaintext format: [random 16 bytes][4-byte msg_len][msg][corpid]
         let mut plaintext_bytes = Vec::new();
-        
+
         // 1. Random 16 bytes
         let random_bytes: [u8; 16] = rng.gen();
         plaintext_bytes.extend_from_slice(&random_bytes);
@@ -135,7 +138,7 @@ impl WeComCrypto {
     }
 
     /// Verify signature for callback URL verification
-    /// 
+    ///
     /// Signature = SHA256(sort(token, timestamp, nonce, encrypted))
     pub fn verify_signature(
         token: &str,
@@ -184,7 +187,9 @@ mod tests {
             "nonce456",
             "encrypted_data",
             // Pre-computed SHA256(sort(...))
-            &hex::encode(sha2::Sha256::digest(b"1234567890encrypted_datanonce456token123")),
+            &hex::encode(sha2::Sha256::digest(
+                b"1234567890encrypted_datanonce456token123",
+            )),
         );
 
         assert!(result.is_ok());

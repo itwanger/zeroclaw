@@ -7,7 +7,7 @@ use std::sync::Arc;
 use tokio::sync::Mutex;
 
 /// WeCom (Enterprise WeChat) channel
-/// 
+///
 /// Receives messages via webhook callback (POST /wecom/callback)
 /// Sends messages via WeCom Bot API
 pub struct WeComChannel {
@@ -74,9 +74,9 @@ impl WeComChannel {
             bail!("WeCom gettoken failed: {} ({})", resp.errmsg, resp.errcode);
         }
 
-        let token = resp.access_token.ok_or_else(|| {
-            anyhow::anyhow!("WeCom gettoken returned no access_token")
-        })?;
+        let token = resp
+            .access_token
+            .ok_or_else(|| anyhow::anyhow!("WeCom gettoken returned no access_token"))?;
 
         // Cache for 7000 seconds (token valid for 7200s, keep 200s buffer)
         *cache = Some(AccessTokenCache {
@@ -135,7 +135,12 @@ impl WeComChannel {
     }
 
     /// Build encrypted XML response for WeCom callback
-    pub fn build_encrypted_response(&self, content: &str, timestamp: &str, nonce: &str) -> Result<String> {
+    pub fn build_encrypted_response(
+        &self,
+        content: &str,
+        timestamp: &str,
+        nonce: &str,
+    ) -> Result<String> {
         use sha2::{Digest, Sha256};
 
         let encrypted = self.crypto.encrypt(content)?;
@@ -186,10 +191,21 @@ impl Channel for WeComChannel {
             safe: 0,
         };
 
-        let resp: SendMessageResponse = self.client.post(&url).json(&payload).send().await?.json().await?;
+        let resp: SendMessageResponse = self
+            .client
+            .post(&url)
+            .json(&payload)
+            .send()
+            .await?
+            .json()
+            .await?;
 
         if resp.errcode != 0 {
-            bail!("WeCom send message failed: {} ({})", resp.errmsg, resp.errcode);
+            bail!(
+                "WeCom send message failed: {} ({})",
+                resp.errmsg,
+                resp.errcode
+            );
         }
 
         tracing::info!("WeCom message sent to {recipient}");
@@ -270,8 +286,8 @@ fn extract_xml_tag(xml: &str, tag: &str) -> Option<String> {
 fn parse_wecom_message(xml: &str) -> Result<IncomingMessage> {
     let from_userid = extract_xml_tag(xml, "FromUserName")
         .ok_or_else(|| anyhow::anyhow!("Missing FromUserName"))?;
-    let msg_type = extract_xml_tag(xml, "MsgType")
-        .ok_or_else(|| anyhow::anyhow!("Missing MsgType"))?;
+    let msg_type =
+        extract_xml_tag(xml, "MsgType").ok_or_else(|| anyhow::anyhow!("Missing MsgType"))?;
     let content = extract_xml_tag(xml, "Content").unwrap_or_default();
     let msg_id = extract_xml_tag(xml, "MsgId").unwrap_or_default();
 

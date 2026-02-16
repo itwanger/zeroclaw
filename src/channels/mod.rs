@@ -478,11 +478,14 @@ pub async fn doctor_channels(config: Config) -> Result<()> {
     }
 
     if let Some(ref dt) = config.channels_config.dingtalk {
-        channels.push(("DingTalk", Arc::new(DingTalkChannel::new(
-            dt.client_id.clone(),
-            dt.client_secret.clone(),
-            dt.allowed_users.clone(),
-        ))));
+        channels.push((
+            "DingTalk",
+            Arc::new(DingTalkChannel::new(
+                dt.client_id.clone(),
+                dt.client_secret.clone(),
+                dt.allowed_users.clone(),
+            )),
+        ));
     }
 
     if channels.is_empty() {

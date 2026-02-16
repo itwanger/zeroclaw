@@ -273,7 +273,7 @@ impl Provider for OpenAiCompatibleProvider {
         };
 
         let url = self.chat_completions_url();
-        
+
         tracing::info!("Calling {} API at: {}", self.name, url);
 
         let response = self

@@ -170,12 +170,16 @@ impl DingTalkApi {
         let resp: GetTokenResponse = self.client.get(&url).send().await?.json().await?;
 
         if resp.errcode != 0 {
-            bail!("Failed to get access token: {} ({})", resp.errmsg, resp.errcode);
+            bail!(
+                "Failed to get access token: {} ({})",
+                resp.errmsg,
+                resp.errcode
+            );
         }
 
-        let token = resp.access_token.ok_or_else(|| {
-            anyhow::anyhow!("No access_token in response")
-        })?;
+        let token = resp
+            .access_token
+            .ok_or_else(|| anyhow::anyhow!("No access_token in response"))?;
 
         // Cache token (expires_in - 60s buffer)
         let expires_in = resp.expires_in.unwrap_or(7200);

@@ -45,10 +45,8 @@ impl Channel for DingTalkChannel {
     }
 
     async fn listen(&self, tx: tokio::sync::mpsc::Sender<ChannelMessage>) -> Result<()> {
-        let mut stream_client = StreamClient::new(
-            self.client_id.clone(),
-            self.client_secret.clone(),
-        );
+        let mut stream_client =
+            StreamClient::new(self.client_id.clone(), self.client_secret.clone());
 
         let allowed_users = self.allowed_users.clone();
         let api = self.api.clone();
@@ -73,6 +71,14 @@ impl Channel for DingTalkChannel {
                     }
                 };
 
+                // Check user permission first.
+                let sender_id = robot_msg.sender_staff_id.clone();
+                let is_allowed = allowed_users.iter().any(|u| u == "*" || u == &sender_id);
+                if !is_allowed {
+                    tracing::warn!("DingTalk message from unauthorized user: {sender_id}");
+                    return Ok(DingTalkApi::build_ack(true)); // ACK but ignore
+                }
+
                 // Extract message content based on msgtype
                 let content = match robot_msg.msg_type.as_str() {
                     "text" => {
@@ -84,38 +90,57 @@ impl Channel for DingTalkChannel {
                         }
                     }
                     "picture" => {
-                        tracing::info!("Received picture message, sending placeholder");
-                        "[图片]".to_string()
+                        let webhook = robot_msg.session_webhook.clone();
+                        let api = api.clone();
+                        tokio::spawn(async move {
+                            let hint = "已收到图片。当前 ZeroClaw 钉钉通道仅支持文本输入，暂不支持图片内容识别。请补充文字描述或关键信息。";
+                            if let Err(e) = api.lock().await.send_message_via_webhook(&webhook, hint).await {
+                                tracing::warn!("Failed to send picture unsupported hint: {e}");
+                            }
+                        });
+                        return Ok(DingTalkApi::build_ack(true));
                     }
                     "audio" => {
-                        tracing::info!("Received audio message, sending placeholder");
-                        "[语音]".to_string()
+                        let webhook = robot_msg.session_webhook.clone();
+                        let api = api.clone();
+                        tokio::spawn(async move {
+                            let hint = "已收到语音。当前 ZeroClaw 钉钉通道仅支持文本输入，暂不支持语音识别。请改用文字发送。";
+                            if let Err(e) = api.lock().await.send_message_via_webhook(&webhook, hint).await {
+                                tracing::warn!("Failed to send audio unsupported hint: {e}");
+                            }
+                        });
+                        return Ok(DingTalkApi::build_ack(true));
                     }
                     "video" => {
-                        tracing::info!("Received video message, sending placeholder");
-                        "[视频]".to_string()
+                        let webhook = robot_msg.session_webhook.clone();
+                        let api = api.clone();
+                        tokio::spawn(async move {
+                            let hint = "已收到视频。当前 ZeroClaw 钉钉通道仅支持文本输入，暂不支持视频内容识别。请补充文字说明。";
+                            if let Err(e) = api.lock().await.send_message_via_webhook(&webhook, hint).await {
+                                tracing::warn!("Failed to send video unsupported hint: {e}");
+                            }
+                        });
+                        return Ok(DingTalkApi::build_ack(true));
                     }
                     "file" => {
-                        tracing::info!("Received file message, sending placeholder");
-                        "[文件]".to_string()
+                        let webhook = robot_msg.session_webhook.clone();
+                        let api = api.clone();
+                        tokio::spawn(async move {
+                            let hint = "已收到文件。当前 ZeroClaw 钉钉通道仅支持文本输入，暂不支持文件内容解析。请粘贴关键文本。";
+                            if let Err(e) = api.lock().await.send_message_via_webhook(&webhook, hint).await {
+                                tracing::warn!("Failed to send file unsupported hint: {e}");
+                            }
+                        });
+                        return Ok(DingTalkApi::build_ack(true));
                     }
                     _ => {
                         tracing::warn!("Unsupported message type: {}", robot_msg.msg_type);
                         return Ok(DingTalkApi::build_ack(true));
                     }
                 };
-                
-                tracing::info!("Received DingTalk message from user: {}, type: {}, content: {}", 
+
+                tracing::info!("Received DingTalk message from user: {}, type: {}, content: {}",
                     robot_msg.sender_staff_id, robot_msg.msg_type, content);
-
-                // Check user permission
-                let sender_id = robot_msg.sender_staff_id.clone();
-                let is_allowed = allowed_users.iter().any(|u| u == "*" || u == &sender_id);
-
-                if !is_allowed {
-                    tracing::warn!("DingTalk message from unauthorized user: {sender_id}");
-                    return Ok(DingTalkApi::build_ack(true)); // ACK but ignore
-                }
 
                 // Extract message content
                 let webhook = robot_msg.session_webhook.clone();
@@ -130,7 +155,7 @@ impl Channel for DingTalkChannel {
                     timestamp: robot_msg.create_at as u64,
                 };
 
-                tracing::info!("Sending message to handler: user={}, webhook={}, content={}", 
+                tracing::info!("Sending message to handler: user={}, webhook={}, content={}",
                     sender_id, webhook, content);
 
                 // Use webhook as recipient for replies
@@ -168,11 +193,8 @@ mod tests {
 
     #[test]
     fn test_channel_name() {
-        let channel = DingTalkChannel::new(
-            "test_id".into(),
-            "test_secret".into(),
-            vec!["*".into()],
-        );
+        let channel =
+            DingTalkChannel::new("test_id".into(), "test_secret".into(), vec!["*".into()]);
         assert_eq!(channel.name(), "DingTalk");
     }
 
@@ -190,11 +212,8 @@ mod tests {
 
     #[test]
     fn test_wildcard_allowed() {
-        let channel = DingTalkChannel::new(
-            "test_id".into(),
-            "test_secret".into(),
-            vec!["*".into()],
-        );
+        let channel =
+            DingTalkChannel::new("test_id".into(), "test_secret".into(), vec!["*".into()]);
         assert!(channel.is_user_allowed("anyone"));
     }
 
