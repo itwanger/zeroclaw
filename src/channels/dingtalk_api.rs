@@ -90,7 +90,8 @@ pub struct RobotMessage {
     pub sender_staff_id: String,
     #[serde(rename = "sessionWebhook")]
     pub session_webhook: String,
-    pub text: TextContent,
+    pub text: Option<TextContent>,
+    pub content: Option<serde_json::Value>,
     #[serde(rename = "msgtype")]
     pub msg_type: String,
     #[serde(rename = "createAt")]

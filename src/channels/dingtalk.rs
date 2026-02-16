@@ -73,8 +73,40 @@ impl Channel for DingTalkChannel {
                     }
                 };
 
-                tracing::info!("Received DingTalk message from user: {}, content: {}", 
-                    robot_msg.sender_staff_id, robot_msg.text.content);
+                // Extract message content based on msgtype
+                let content = match robot_msg.msg_type.as_str() {
+                    "text" => {
+                        if let Some(ref text) = robot_msg.text {
+                            text.content.clone()
+                        } else {
+                            tracing::warn!("Text message without text field");
+                            return Ok(DingTalkApi::build_ack(true));
+                        }
+                    }
+                    "picture" => {
+                        tracing::info!("Received picture message, sending placeholder");
+                        "[图片]".to_string()
+                    }
+                    "audio" => {
+                        tracing::info!("Received audio message, sending placeholder");
+                        "[语音]".to_string()
+                    }
+                    "video" => {
+                        tracing::info!("Received video message, sending placeholder");
+                        "[视频]".to_string()
+                    }
+                    "file" => {
+                        tracing::info!("Received file message, sending placeholder");
+                        "[文件]".to_string()
+                    }
+                    _ => {
+                        tracing::warn!("Unsupported message type: {}", robot_msg.msg_type);
+                        return Ok(DingTalkApi::build_ack(true));
+                    }
+                };
+                
+                tracing::info!("Received DingTalk message from user: {}, type: {}, content: {}", 
+                    robot_msg.sender_staff_id, robot_msg.msg_type, content);
 
                 // Check user permission
                 let sender_id = robot_msg.sender_staff_id.clone();
@@ -86,7 +118,6 @@ impl Channel for DingTalkChannel {
                 }
 
                 // Extract message content
-                let content = robot_msg.text.content.clone();
                 let webhook = robot_msg.session_webhook.clone();
 
                 // Send to message bus
